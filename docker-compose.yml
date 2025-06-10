@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgresdb
+    environment:
+      POSTGRES_USER: estefane
+      POSTGRES_PASSWORD: senha
+      POSTGRES_DB: nestdb
+    ports:
+      - "5433:5432"
