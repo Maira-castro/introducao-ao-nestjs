@@ -13,8 +13,31 @@ datasource db {
   url      = "postgresql://estefane:senha@localhost:5433/nestdb?schema=public"
 }
 
+enum UserRole {
+  ADMIN
+  TURISTA
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(uuid())
   name  String
   email String @unique
+  password String
+  role UserRole @default(TURISTA)
+}
+
+model Place {
+  id String @id @default(uuid())
+  name String
+  phone String
+  type placeType
+  latitude Float
+  longitude Float
+  images Json[]
+}
+
+enum placeType {
+  RESTAURANTE
+  BAR
+  HOTEL
 }
