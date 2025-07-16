@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://estefane:senha@localhost:5433/nestdb?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
