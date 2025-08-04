@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +51,7 @@ export class AuthService {
         const user = await this.prisma.user.findUnique({ where: { email } }); //procura o usuario por email
         if (!user) throw new UnauthorizedException('Credenciais inválidas');//se o usuario nao existir
 
+        if (!user.password) throw new UnauthorizedException('Usuario não possui senha definida (Logar com o google)')
         const isMatch = await bcrypt.compare(password, user.password); //verifica se a senha é valida
         if (!isMatch) throw new UnauthorizedException('Credenciais inválidas'); //se a senha não for igual
 
@@ -58,7 +60,7 @@ export class AuthService {
 
     async login(credentials: LoginDto) { //função para logar usuario
 
- //recebe o usuario que esta sendo logado que vem do metodo validateUser() que verifica se email e senha esta certo
+        //recebe o usuario que esta sendo logado que vem do metodo validateUser() que verifica se email e senha esta certo
         const user = await this.validateUser(credentials.email, credentials.password);
 
         const payload = { // define o que vai ser retornado no token 
@@ -72,4 +74,27 @@ export class AuthService {
         };
     }
 
+    //login com o google
+    async findCreateGoogleUser({ googleId, email, name }) {
+        let user = await this.prisma.user.findUnique({
+            where: { googleId }
+        })
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: {
+                    email, name, googleId
+                }
+            })
+        }
+        return user //seja o já cadastrado no sistema ou o criado
+    }
+
+    signJwtForUser(user: User) {
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            role: user.role
+        }
+        return this.jwt.sign(payload)
+    }
 }

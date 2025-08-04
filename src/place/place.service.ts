@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CloudinaryService } from './types/cloudinary.service';
-import { CreatePlaceDto } from './dto/create-place.dto';
 import { ImageObject } from './types/image-object';
 import { Place } from '@prisma/client';
 import { UpdatePlaceDto } from './dto/update-place.dto';
@@ -14,6 +13,27 @@ export class PlaceService {
 
   async findAll() {
     return this.prisma.place.findMany()
+  }
+
+  //RETORNAR PAGINAS COM PAGINAÇÃO
+  async findPaginated(page, limit) {
+    const [places, total] = await this.prisma.$transaction([ //quando queremos fazer mais de uma consulta
+
+      this.prisma.place.findMany({ //resultado vai ser armazenado em places
+        skip: (page - 1) * limit, //razão(de quanto em quanto)
+        take: limit,  //quantos      
+        orderBy: { created_at: 'desc' }
+      }),
+      this.prisma.place.count() //quantos itens tem cadastrado na tabela //resultado vai ser armazenado em total
+    ])
+    return {
+      data: places,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+      }
+    }
   }
 
   async create(data: {
@@ -62,11 +82,11 @@ export class PlaceService {
     const place = await this.prisma.place.findUnique({ where: { id } })
 
     if (!place) throw new BadRequestException('Local não encontrado!')
-      const images = place.images as ImageObject[]
-//apago as imagens do Cloudinary
+    const images = place.images as ImageObject[]
+    //apago as imagens do Cloudinary
     await Promise.all(images.map(
-      (image)=>this.cloudinaryService.deleteImage(image.public_id)))
-      //apago o registro de place do banco de dados
-      await this.prisma.place.delete({where:{id}})
+      (image) => this.cloudinaryService.deleteImage(image.public_id)))
+    //apago o registro de place do banco de dados
+    await this.prisma.place.delete({ where: { id } })
   }
 }

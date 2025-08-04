@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, BadRequestException, UseInterceptors, UploadedFiles, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, BadRequestException, UseInterceptors, UploadedFiles, Put, Query } from '@nestjs/common';
 import { PlaceService } from './place.service';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { UpdatePlaceDto } from './dto/update-place.dto';
 import { File as MulterFile } from 'multer'
 import { CloudinaryService } from './types/cloudinary.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { PaginatedDto } from './dto/paginated-place.dto';
 
 @Controller('place')
 export class PlaceController {
@@ -58,6 +59,7 @@ export class PlaceController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Retorna todos os locais' })
   async findAll() {
     return this.placeService.findAll()
   }
@@ -94,9 +96,18 @@ export class PlaceController {
   }
 
   @Delete(':id')
-   @ApiOperation({ summary: 'deletar local e suas imagens no Cloudinary' })
-   @ApiResponse({status:200, description:'Local deletado com sucesso.'})
-  async deletePlace(@Param('id') id:string){
+  @ApiOperation({ summary: 'deletar local e suas imagens no Cloudinary' })
+  @ApiResponse({ status: 200, description: 'Local deletado com sucesso.' })
+  async deletePlace(@Param('id') id: string) {
     return this.placeService.delete(id)
   }
+
+  @Get('paginated')
+  @ApiOperation({ summary: 'Listar locais paginados' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  async findPaginated(@Query() paginatedDto:PaginatedDto) {
+    return this.placeService.findPaginated(paginatedDto.page, paginatedDto.limit)
+  }
 }
+
