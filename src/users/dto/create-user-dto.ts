@@ -13,4 +13,5 @@ export class CreateUserDto {
     @IsEmail({}, { message: 'email é obrigatório!' })
     email: string
 
+    password?: string
 }
