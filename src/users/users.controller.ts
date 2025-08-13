@@ -6,7 +6,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagg
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../auth/admin.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 
@@ -25,7 +25,7 @@ export class UsersController {
    //  @ApiResponse({ status: 500, description: 'erro interno no servidor!' })
    // create(@Body() data: Prisma.UserCreateInput) {
    //    return this.usersService.create(data);
-   // }
+   //}
 
    //RETORNA TODOS OS USUARIO
 
