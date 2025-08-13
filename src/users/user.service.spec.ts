@@ -9,7 +9,7 @@ const mockPrisma = {
     user: { //* tabela com o nome user
         create: jest.fn(),
         findMany: jest.fn(),
-        findUnique: jest.fn(), //this.prisma.place.findUnique
+        findUnique: jest.fn(), //this.prisma.user.findUnique
         update: jest.fn(),
         delete: jest.fn(),
     }
