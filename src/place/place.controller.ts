@@ -64,6 +64,11 @@ export class PlaceController {
     return this.placeService.findAll()
   }
 
+  @Get(':id')
+  async findOne(@Param('id') id: string){
+    return this.placeService.findOne(id)
+  }
+
   @Put(':id')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 3 }]))
   @ApiConsumes('multipart/form-data')

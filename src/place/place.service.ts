@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from './types/cloudinary.service';
 import { ImageObject } from './types/image-object';
 import { Place } from '@prisma/client';
@@ -10,6 +10,10 @@ export class PlaceService {
   constructor(private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService
   ) { }
+
+  async findOne(id: string) {
+    return this.prisma.place.findUnique({ where: { id } })
+  }
 
   async findAll() {
     return this.prisma.place.findMany()
@@ -78,7 +82,7 @@ export class PlaceService {
     })
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string):Promise<Place> {
     const place = await this.prisma.place.findUnique({ where: { id } })
 
     if (!place) throw new BadRequestException('Local não encontrado!')
@@ -87,6 +91,7 @@ export class PlaceService {
     await Promise.all(images.map(
       (image) => this.cloudinaryService.deleteImage(image.public_id)))
     //apago o registro de place do banco de dados
-    await this.prisma.place.delete({ where: { id } })
+    const retorna = await this.prisma.place.delete({ where: { id } })
+    return retorna
   }
 }
