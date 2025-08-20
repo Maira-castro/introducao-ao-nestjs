@@ -123,7 +123,7 @@ describe("PlaceController testes", () => {
             longitude: -44755.75,
         }
 
-        const files = { images: [{ buffer: Buffer.from('fake-image-1') }] } as any
+        const file = { images: [{ buffer: Buffer.from('fake-image-1') }] } as any
 
         // Configura o mock do Cloudinary: quando `uploadImage` for chamado, 
         // ele simulará um upload bem-sucedido.
@@ -136,11 +136,11 @@ describe("PlaceController testes", () => {
         })
 
         // Chama o método de criação do controlador.
-        const result = await controller.create(dto as any, files)
+        const result = await controller.create(dto as any, file)
 
         // Verifica se os métodos dos serviços foram chamados.
         expect(cloudinaryService.uploadImage).toHaveBeenCalled()
-        expect(placeService.create).toHaveBeenCalled()
+        expect(placeService.create).toHaveBeenCalledWith({...dto,images:[{ url: "https://", public_id: "id_from_cloudinary" }]})
         // Verifica se o resultado tem o ID esperado.
         expect(result.id).toBe("4")
     })
@@ -176,7 +176,7 @@ describe("PlaceController testes", () => {
         // Verifica se o resultado é o objeto atualizado esperado.
         expect(result).toEqual(data[1]);
         // Verifica se o método `update` do serviço foi chamado com os argumentos corretos.
-        expect(placeService.update).toHaveBeenCalledWith(data[1].id, updated, file)
+        expect(placeService.update).toHaveBeenCalledWith(data[1].id, updated, file.images)
     });
 
 
